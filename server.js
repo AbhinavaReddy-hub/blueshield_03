@@ -2,8 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const cors = require('cors');
-const cloudinary = require('cloudinary').v2;  // Use v2 explicitly
-const { CloudinaryStorage } = require('@fluidjs/multer-cloudinary');
+const cloudinary = require('cloudinary').v2;  
+const { CloudinaryStorage } = require('multer-storage-cloudinary');  // ✅ fixed package
 
 const app = express();
 
@@ -19,7 +19,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect to MongoDB Atlas using env var
+// Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -32,10 +32,9 @@ const reportSchema = new mongoose.Schema({
   lat: Number,
   long: Number,
   comment: String,
-  imageUrl: String, // Cloudinary URL
+  imageUrl: String, 
   timestamp: { type: Date, default: Date.now },
 });
-
 const Report = mongoose.model('Report', reportSchema);
 
 // Multer storage for Cloudinary
@@ -64,10 +63,10 @@ app.post('/api/reports', upload.single('image'), async (req, res) => {
   }
 });
 
-// Health check route (important for testing on Vercel)
+// Health check route
 app.get('/', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Backend running on Vercel' });
 });
 
-// ✅ Export app as a handler for Vercel
+// Export app (Vercel expects a handler)
 module.exports = app;
