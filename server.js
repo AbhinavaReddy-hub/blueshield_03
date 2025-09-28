@@ -1,4 +1,6 @@
 // server.js
+// require("dotenv").config();
+
 const express = require("express");
 const mongoose = require("mongoose");
 const multer = require("multer");
@@ -66,6 +68,17 @@ app.get("/", (req, res) => {
   res.status(200).json({ status: "OK", message: "Backend running on Vercel" });
 });
 
+app.get("/api/reports", async (req, res) => {
+  try {
+    await connectDB();
+    const reports = await Report.find().sort({ timestamp: -1 });
+    res.json(reports);
+  } catch (err) {
+    console.error("❌ Fetch reports error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 app.post("/api/reports", upload.single("image"), async (req, res) => {
   try {
     await connectDB();
@@ -85,3 +98,9 @@ app.post("/api/reports", upload.single("image"), async (req, res) => {
 
 // Export app for Vercel serverless
 module.exports = app;
+// if (process.env.NODE_ENV !== "production") {
+//   const port = process.env.PORT || 5000;
+//   app.listen(port, () => {
+//     console.log(`🚀 Server running at http://localhost:${port}`);
+//   });
+// }
